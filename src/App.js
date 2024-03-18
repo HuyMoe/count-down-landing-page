@@ -2,6 +2,7 @@ import styles from './App.module.scss';
 import classNames from 'classnames/bind';
 
 import images from './assest/images';
+import sounds from './assest/sounds';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { TimePicker, Switch } from 'antd';
@@ -19,7 +20,9 @@ function App() {
     const [theme, setTheme] = useState('light');
 
     const inputRef = useRef();
+    const audioRef = useRef();
 
+    console.log(audioRef.current);
     const onChangeTime = (time) => {
         setValue(time);
         setHour(time.$H);
@@ -43,6 +46,9 @@ function App() {
             setSecond(0);
             clearInterval(timeId.current);
         }
+        if (hour === -1 && minutes === 59 && second === 59) {
+            audioRef.current.play();
+        }
     }, [hour, minutes, second]);
 
     const handleStart = () => {
@@ -53,6 +59,7 @@ function App() {
     };
 
     const handleStop = () => {
+        audioRef.current.pause();
         clearInterval(timeId.current);
     };
 
@@ -60,6 +67,7 @@ function App() {
         setHour(0);
         setMinutes(0);
         setSecond(0);
+        audioRef.current.pause();
         clearInterval(timeId.current);
     };
 
@@ -101,6 +109,7 @@ function App() {
                 <span>:</span>
                 <h1 className={cx('content-item')}>{second < 10 ? `0${second}` : second}</h1>
             </div>
+            <audio className="audio-control" ref={audioRef} src={sounds.sound} allow="autoplay" loop></audio>
             <div className={cx('switch-theme')}>
                 <label className={cx('title-theme')}>Dark Theme</label>
                 <Switch defaultChecked onClick={handleSwitch} />
