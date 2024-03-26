@@ -16,13 +16,12 @@ function App() {
     const [hour, setHour] = useState(Number);
     const [minutes, setMinutes] = useState(Number);
     const [second, setSecond] = useState(Number);
-    const [value, setValue] = useState();
+    const [disable, setDisable] = useState(false);
+    const [value, setValue] = useState('');
     const [theme, setTheme] = useState('light');
 
-    const inputRef = useRef();
     const audioRef = useRef();
 
-    console.log(audioRef.current);
     const onChangeTime = (time) => {
         setValue(time);
         setHour(time.$H);
@@ -44,29 +43,32 @@ function App() {
             setHour(0);
             setMinutes(0);
             setSecond(0);
-            clearInterval(timeId.current);
-        }
-        if (hour === -1 && minutes === 59 && second === 59) {
             audioRef.current.play();
+            clearInterval(timeId.current);
         }
     }, [hour, minutes, second]);
 
     const handleStart = () => {
-        setValue('');
-        timeId.current = setInterval(() => {
-            setSecond((prev) => prev - 1);
-        }, 1000);
+        if (value !== '') {
+            timeId.current = setInterval(() => {
+                setSecond((prev) => prev - 1);
+            }, 1000);
+        }
+        setDisable(true);
     };
 
     const handleStop = () => {
         audioRef.current.pause();
         clearInterval(timeId.current);
+        setDisable(false);
     };
 
     const handleReset = () => {
         setHour(0);
         setMinutes(0);
         setSecond(0);
+        setValue('');
+        setDisable(false);
         audioRef.current.pause();
         clearInterval(timeId.current);
     };
@@ -85,12 +87,11 @@ function App() {
                     </div>
                     <div className={cx('control')}>
                         <TimePicker
-                            ref={inputRef}
                             value={value}
                             onChange={onChangeTime}
                             defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')}
                         />
-                        <button className={cx('control-btn')} onClick={handleStart}>
+                        <button className={cx('control-btn')} onClick={handleStart} disabled={disable}>
                             Start
                         </button>
                         <button className={cx('control-btn')} onClick={handleStop}>
